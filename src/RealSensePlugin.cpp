@@ -43,10 +43,12 @@ RealSensePlugin::~RealSensePlugin() {}
 
 /////////////////////////////////////////////////
 void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
+
   // Output the name of the model
+
   std::cout
       << std::endl
-      << "RealSensePlugin: The realsense_camera plugin is attach to model "
+      << "RealSensePlugin: The realsense_camera plugin is attached to model "
       << _model->GetName() << std::endl;
 
   _sdf = _sdf->GetFirstElement();
@@ -115,9 +117,9 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
     else if (name == "prefix")
       this->prefix = _sdf->GetValue()->GetAsString();
     else if (name == "robotNamespace")
-      break;
+      this->robotNamespace = _sdf->GetValue()->GetAsString();
     else
-      throw std::runtime_error("Ivalid parameter for ReakSensePlugin");
+      throw std::runtime_error("Ivalid parameter for RealSensePlugin");
 
     _sdf = _sdf->GetNextElement();
   } while (_sdf);
@@ -128,22 +130,23 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
   // Store a pointer to the world
   this->world = this->rsModel->GetWorld();
 
+
   // Sensors Manager
   sensors::SensorManager *smanager = sensors::SensorManager::Instance();
 
   // Get Cameras Renderers
   this->depthCam = std::dynamic_pointer_cast<sensors::DepthCameraSensor>(
-                       smanager->GetSensor(prefix + DEPTH_CAMERA_NAME))
+                       smanager->GetSensor(this->world->Name() + "::" + this->rsModel->GetName() + "::" + cameraParamsMap_[DEPTH_CAMERA_NAME].optical_frame +  "::" + prefix + DEPTH_CAMERA_NAME))
                        ->DepthCamera();
 
   this->ired1Cam = std::dynamic_pointer_cast<sensors::CameraSensor>(
-                       smanager->GetSensor(prefix + IRED1_CAMERA_NAME))
+                       smanager->GetSensor(this->world->Name() + "::" + this->rsModel->GetName() + "::" + cameraParamsMap_[IRED1_CAMERA_NAME].optical_frame +  "::" + prefix + IRED1_CAMERA_NAME))
                        ->Camera();
   this->ired2Cam = std::dynamic_pointer_cast<sensors::CameraSensor>(
-                       smanager->GetSensor(prefix + IRED2_CAMERA_NAME))
+                       smanager->GetSensor(this->world->Name() + "::" + this->rsModel->GetName() + "::" + cameraParamsMap_[IRED2_CAMERA_NAME].optical_frame +  "::" + prefix + IRED2_CAMERA_NAME))
                        ->Camera();
   this->colorCam = std::dynamic_pointer_cast<sensors::CameraSensor>(
-                       smanager->GetSensor(prefix + COLOR_CAMERA_NAME))
+                       smanager->GetSensor(this->world->Name() + "::" + this->rsModel->GetName() + "::" + cameraParamsMap_[COLOR_CAMERA_NAME].optical_frame +  "::" + prefix + COLOR_CAMERA_NAME))
                        ->Camera();
 
   // Check if camera renderers have been found successfuly
@@ -183,7 +186,7 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
   this->transportNode->Init(this->world->Name());
 
   // Setup Publishers
-  std::string rsTopicRoot = "~/" + this->rsModel->GetName();
+  std::string rsTopicRoot = "~/" + this->rsModel->GetName() + "/";
 
   this->depthPub = this->transportNode->Advertise<msgs::ImageStamped>(
       rsTopicRoot + DEPTH_CAMERA_TOPIC, 1, depthUpdateRate_);
@@ -195,6 +198,7 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
       rsTopicRoot + COLOR_CAMERA_TOPIC, 1, colorUpdateRate_);
 
   // Listen to depth camera new frame event
+
   this->newDepthFrameConn = this->depthCam->ConnectNewDepthFrame(
       std::bind(&RealSensePlugin::OnNewDepthFrame, this));
 
@@ -207,9 +211,11 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
   this->newColorFrameConn = this->colorCam->ConnectNewImageFrame(std::bind(
       &RealSensePlugin::OnNewFrame, this, this->colorCam, this->colorPub));
 
+
   // Listen to the update event
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&RealSensePlugin::OnUpdate, this));
+
 }
 
 /////////////////////////////////////////////////

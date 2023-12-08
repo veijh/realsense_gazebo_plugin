@@ -32,18 +32,13 @@ void GazeboRosRealsense::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
 
   RealSensePlugin::Load(_model, _sdf);
 
-  this->rosnode_ = new ros::NodeHandle(this->GetHandle());
+  this->rosnode_ = new ros::NodeHandle(this->rsModel->GetName());
 
   // initialize camera_info_manager
   this->camera_info_manager_.reset(
       new camera_info_manager::CameraInfoManager(*this->rosnode_, this->GetHandle()));
 
   this->itnode_ = new image_transport::ImageTransport(*this->rosnode_);
-
-  // set 'png' compression format for depth images
-  // default functional parameters for compressed_image_transport to have lossless png compression
-  rosnode_->setParam(rosnode_->resolveName(cameraParamsMap_[DEPTH_CAMERA_NAME].topic_name) + "/compressed/format", "png");
-  rosnode_->setParam(rosnode_->resolveName(cameraParamsMap_[DEPTH_CAMERA_NAME].topic_name) + "/compressed/png_level", 1);
 
   this->color_pub_ = this->itnode_->advertiseCamera(
       cameraParamsMap_[COLOR_CAMERA_NAME].topic_name, 2);
@@ -168,19 +163,9 @@ bool GazeboRosRealsense::FillPointCloudHelper(sensor_msgs::PointCloud2 &point_cl
       if (this->image_msg_.data.size() == rows_arg * cols_arg * 3)
       {
         // color
-        if (this->image_msg_.encoding == sensor_msgs::image_encodings::RGB8) {
-          iter_rgb[2] = image_src[i * 3 + j * cols_arg * 3 + 0];
-          iter_rgb[1] = image_src[i * 3 + j * cols_arg * 3 + 1];
-          iter_rgb[0] = image_src[i * 3 + j * cols_arg * 3 + 2];
-        }
-        else if (this->image_msg_.encoding == sensor_msgs::image_encodings::BGR8) {
-          iter_rgb[0] = image_src[i * 3 + j * cols_arg * 3 + 0];
-          iter_rgb[1] = image_src[i * 3 + j * cols_arg * 3 + 1];
-          iter_rgb[2] = image_src[i * 3 + j * cols_arg * 3 + 2];
-        }
-        else {
-          throw std::runtime_error("unsupported colour encoding: " + this->image_msg_.encoding);
-        }
+        iter_rgb[0] = image_src[i * 3 + j * cols_arg * 3 + 0];
+        iter_rgb[1] = image_src[i * 3 + j * cols_arg * 3 + 1];
+        iter_rgb[2] = image_src[i * 3 + j * cols_arg * 3 + 2];
       }
       else if (this->image_msg_.data.size() == rows_arg * cols_arg)
       {
