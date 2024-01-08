@@ -90,6 +90,9 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
     else if (name == "infrared2CameraInfoTopicName")
       cameraParamsMap_[IRED2_CAMERA_NAME].camera_info_topic_name =
           _sdf->GetValue()->GetAsString();
+
+    // these parameter are abandoned
+    /*
     else if (name == "colorOpticalframeName")
       cameraParamsMap_[COLOR_CAMERA_NAME].optical_frame =
           _sdf->GetValue()->GetAsString();
@@ -102,6 +105,7 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
     else if (name == "infrared2OpticalframeName")
       cameraParamsMap_[IRED2_CAMERA_NAME].optical_frame =
           _sdf->GetValue()->GetAsString();
+    */
     else if (name == "rangeMinDepth")
       _sdf->GetValue()->Get(rangeMinDepth_);
     else if (name == "rangeMaxDepth")
