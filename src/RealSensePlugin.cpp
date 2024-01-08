@@ -90,7 +90,6 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
     else if (name == "infrared2CameraInfoTopicName")
       cameraParamsMap_[IRED2_CAMERA_NAME].camera_info_topic_name =
           _sdf->GetValue()->GetAsString();
-
     // these parameter are abandoned
     /*
     else if (name == "colorOpticalframeName")
