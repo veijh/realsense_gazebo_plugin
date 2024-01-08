@@ -33,6 +33,10 @@ namespace gazebo {
 #define COLOR_CAMERA_NAME "color"
 #define IRED1_CAMERA_NAME "ired1"
 #define IRED2_CAMERA_NAME "ired2"
+#define DEPTH_CAMERA_FRAME_NAME "camera_depth_frame"
+#define COLOR_CAMERA_FRAME_NAME "camera_color_frame"
+#define IRED1_CAMERA_FRAME_NAME "camera_ired1_frame"
+#define IRED2_CAMERA_FRAME_NAME "camera_ired2_frame"
 
 struct CameraParams {
   CameraParams() {}

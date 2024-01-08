@@ -119,10 +119,15 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
     else if (name == "robotNamespace")
       this->robotNamespace = _sdf->GetValue()->GetAsString();
     else
-      throw std::runtime_error("Ivalid parameter for RealSensePlugin");
+      throw std::runtime_error("Invalid parameter for RealSensePlugin");
 
     _sdf = _sdf->GetNextElement();
   } while (_sdf);
+
+  cameraParamsMap_[COLOR_CAMERA_NAME].optical_frame = COLOR_CAMERA_FRAME_NAME;
+  cameraParamsMap_[DEPTH_CAMERA_NAME].optical_frame = DEPTH_CAMERA_FRAME_NAME;
+  cameraParamsMap_[IRED1_CAMERA_NAME].optical_frame = IRED1_CAMERA_FRAME_NAME;
+  cameraParamsMap_[IRED2_CAMERA_NAME].optical_frame = IRED2_CAMERA_FRAME_NAME;
 
   // Store a pointer to the this model
   this->rsModel = _model;
@@ -136,17 +141,17 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
 
   // Get Cameras Renderers
   this->depthCam = std::dynamic_pointer_cast<sensors::DepthCameraSensor>(
-                       smanager->GetSensor(this->world->Name() + "::" + this->rsModel->GetName() + "::" + cameraParamsMap_[DEPTH_CAMERA_NAME].optical_frame +  "::" + prefix + DEPTH_CAMERA_NAME))
+                       smanager->GetSensor(this->world->Name() + "::" + this->rsModel->GetName() + "::D435i::" + DEPTH_CAMERA_FRAME_NAME +  "::" + prefix + DEPTH_CAMERA_NAME))
                        ->DepthCamera();
 
   this->ired1Cam = std::dynamic_pointer_cast<sensors::CameraSensor>(
-                       smanager->GetSensor(this->world->Name() + "::" + this->rsModel->GetName() + "::" + cameraParamsMap_[IRED1_CAMERA_NAME].optical_frame +  "::" + prefix + IRED1_CAMERA_NAME))
+                       smanager->GetSensor(this->world->Name() + "::" + this->rsModel->GetName() + "::D435i::" + IRED1_CAMERA_FRAME_NAME +  "::" + prefix + IRED1_CAMERA_NAME))
                        ->Camera();
   this->ired2Cam = std::dynamic_pointer_cast<sensors::CameraSensor>(
-                       smanager->GetSensor(this->world->Name() + "::" + this->rsModel->GetName() + "::" + cameraParamsMap_[IRED2_CAMERA_NAME].optical_frame +  "::" + prefix + IRED2_CAMERA_NAME))
+                       smanager->GetSensor(this->world->Name() + "::" + this->rsModel->GetName() + "::D435i::" + IRED2_CAMERA_FRAME_NAME +  "::" + prefix + IRED2_CAMERA_NAME))
                        ->Camera();
   this->colorCam = std::dynamic_pointer_cast<sensors::CameraSensor>(
-                       smanager->GetSensor(this->world->Name() + "::" + this->rsModel->GetName() + "::" + cameraParamsMap_[COLOR_CAMERA_NAME].optical_frame +  "::" + prefix + COLOR_CAMERA_NAME))
+                       smanager->GetSensor(this->world->Name() + "::" + this->rsModel->GetName() + "::D435i::" + COLOR_CAMERA_FRAME_NAME +  "::" + prefix + COLOR_CAMERA_NAME))
                        ->Camera();
 
   // Check if camera renderers have been found successfuly
