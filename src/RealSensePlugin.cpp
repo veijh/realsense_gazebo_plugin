@@ -127,11 +127,6 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
     _sdf = _sdf->GetNextElement();
   } while (_sdf);
 
-  cameraParamsMap_[COLOR_CAMERA_NAME].optical_frame = COLOR_CAMERA_FRAME_NAME;
-  cameraParamsMap_[DEPTH_CAMERA_NAME].optical_frame = DEPTH_CAMERA_FRAME_NAME;
-  cameraParamsMap_[IRED1_CAMERA_NAME].optical_frame = IRED1_CAMERA_FRAME_NAME;
-  cameraParamsMap_[IRED2_CAMERA_NAME].optical_frame = IRED2_CAMERA_FRAME_NAME;
-
   // Store a pointer to the this model
   this->rsModel = _model;
 
@@ -141,6 +136,11 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
 
   // Sensors Manager
   sensors::SensorManager *smanager = sensors::SensorManager::Instance();
+
+  cameraParamsMap_[COLOR_CAMERA_NAME].optical_frame = this->rsModel->GetName() + "_" + COLOR_CAMERA_FRAME_NAME;
+  cameraParamsMap_[DEPTH_CAMERA_NAME].optical_frame = this->rsModel->GetName() + "_" + DEPTH_CAMERA_FRAME_NAME;
+  cameraParamsMap_[IRED1_CAMERA_NAME].optical_frame = this->rsModel->GetName() + "_" + IRED1_CAMERA_FRAME_NAME;
+  cameraParamsMap_[IRED2_CAMERA_NAME].optical_frame = this->rsModel->GetName() + "_" + IRED2_CAMERA_FRAME_NAME;
 
   // Get Cameras Renderers
   this->depthCam = std::dynamic_pointer_cast<sensors::DepthCameraSensor>(

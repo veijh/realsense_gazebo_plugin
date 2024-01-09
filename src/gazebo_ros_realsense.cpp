@@ -112,9 +112,9 @@ bool GazeboRosRealsense::FillPointCloudHelper(sensor_msgs::PointCloud2 &point_cl
   pcd_modifier.resize(rows_arg * cols_arg);
   point_cloud_msg.is_dense = true;
 
-  sensor_msgs::PointCloud2Iterator<float> iter_x(pointcloud_msg_, "x");
-  sensor_msgs::PointCloud2Iterator<float> iter_y(pointcloud_msg_, "y");
-  sensor_msgs::PointCloud2Iterator<float> iter_z(pointcloud_msg_, "z");
+  sensor_msgs::PointCloud2Iterator<float> iter_x(pointcloud_msg_, "y");
+  sensor_msgs::PointCloud2Iterator<float> iter_y(pointcloud_msg_, "z");
+  sensor_msgs::PointCloud2Iterator<float> iter_z(pointcloud_msg_, "x");
   sensor_msgs::PointCloud2Iterator<uint8_t> iter_rgb(pointcloud_msg_, "rgb");
 
   float *toCopyFrom = (float *)data_arg;
@@ -148,8 +148,8 @@ bool GazeboRosRealsense::FillPointCloudHelper(sensor_msgs::PointCloud2 &point_cl
         // hardcoded rotation rpy(-M_PI/2, 0, -M_PI/2) is built-in
         // to urdf, where the *_optical_frame should have above relative
         // rotation from the physical camera *_frame
-        *iter_x = depth * tan(yAngle);
-        *iter_y = depth * tan(pAngle);
+        *iter_x = -depth * tan(yAngle);
+        *iter_y = -depth * tan(pAngle);
         *iter_z = depth;
       }
       else  // point in the unseeable range
