@@ -152,6 +152,12 @@ bool GazeboRosRealsense::FillPointCloudHelper(sensor_msgs::PointCloud2 &point_cl
         *iter_y = depth * tan(pAngle);
         *iter_z = depth;
       }
+      else if(depth >= pointCloudCutOffMax_)
+      {
+        *iter_x = pointCloudCutOffMax_ * tan(yAngle);
+        *iter_y = pointCloudCutOffMax_ * tan(pAngle);
+        *iter_z = pointCloudCutOffMax_;
+      }
       else  // point in the unseeable range
       {
         *iter_x = *iter_y = *iter_z = std::numeric_limits<float>::quiet_NaN();
