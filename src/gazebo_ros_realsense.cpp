@@ -109,7 +109,7 @@ bool GazeboRosRealsense::FillPointCloudHelper(sensor_msgs::PointCloud2 &point_cl
   sensor_msgs::PointCloud2Modifier pcd_modifier(point_cloud_msg);
   pcd_modifier.setPointCloud2FieldsByString(2, "xyz", "rgb");
   // convert to flat array shape, we need to reconvert later
-  pcd_modifier.resize(rows_arg * cols_arg);
+  pcd_modifier.resize(rows_arg / 2 * cols_arg / 2);
   point_cloud_msg.is_dense = true;
 
   sensor_msgs::PointCloud2Iterator<float> iter_x(pointcloud_msg_, "x");
@@ -124,7 +124,7 @@ bool GazeboRosRealsense::FillPointCloudHelper(sensor_msgs::PointCloud2 &point_cl
   double fl = ((double)this->depthCam->ImageWidth()) / (2.0 * tan(hfov / 2.0));
 
   // convert depth to point cloud
-  for (uint32_t j = 0; j < rows_arg; j++)
+  for (uint32_t j = 0; j < rows_arg; j += 2)
   {
     double pAngle;
     if (rows_arg > 1)
@@ -132,7 +132,7 @@ bool GazeboRosRealsense::FillPointCloudHelper(sensor_msgs::PointCloud2 &point_cl
     else
       pAngle = 0.0;
 
-    for (uint32_t i = 0; i < cols_arg; i++, ++iter_x, ++iter_y, ++iter_z, ++iter_rgb)
+    for (uint32_t i = 0; i < cols_arg; i += 2, ++iter_x, ++iter_y, ++iter_z, ++iter_rgb)
     {
       double yAngle;
       if (cols_arg > 1)
@@ -140,7 +140,8 @@ bool GazeboRosRealsense::FillPointCloudHelper(sensor_msgs::PointCloud2 &point_cl
       else
         yAngle = 0.0;
 
-      double depth = toCopyFrom[index++];  // + 0.0*this->myParent->GetNearClip();
+      double depth = toCopyFrom[index];  // + 0.0*this->myParent->GetNearClip();
+      index += 2;
 
       if (depth > pointCloudCutOff_ && depth < pointCloudCutOffMax_)
       {
@@ -191,9 +192,9 @@ bool GazeboRosRealsense::FillPointCloudHelper(sensor_msgs::PointCloud2 &point_cl
   }
 
   // reconvert to original height and width after the flat reshape
-  point_cloud_msg.height = rows_arg;
-  point_cloud_msg.width = cols_arg;
-  point_cloud_msg.row_step = point_cloud_msg.point_step * point_cloud_msg.width;
+  point_cloud_msg.height = rows_arg / 2;
+  point_cloud_msg.width = cols_arg / 2;
+  point_cloud_msg.row_step = point_cloud_msg.point_step * point_cloud_msg.width / 2;
 
   return true;
 }
@@ -227,10 +228,10 @@ void GazeboRosRealsense::OnNewDepthFrame() {
   if (pointCloud_ && this->pointcloud_pub_.getNumSubscribers() > 0)
   {
     this->pointcloud_msg_.header = this->depth_msg_.header;
-    this->pointcloud_msg_.width = this->depthCam->ImageWidth();
-    this->pointcloud_msg_.height = this->depthCam->ImageHeight();
+    this->pointcloud_msg_.width = this->depthCam->ImageWidth() / 2;
+    this->pointcloud_msg_.height = this->depthCam->ImageHeight() / 2;
     this->pointcloud_msg_.row_step =
-        this->pointcloud_msg_.point_step * this->depthCam->ImageWidth();
+        this->pointcloud_msg_.point_step * this->depthCam->ImageWidth() / 2;
     FillPointCloudHelper(this->pointcloud_msg_, this->depthCam->ImageHeight(),
                          this->depthCam->ImageWidth(), 2 * this->depthCam->ImageWidth(),
                          (void *)this->depthCam->DepthData());
